@@ -1,0 +1,161 @@
+-------------------------------------------------------------------------------
+--
+-- Title       : 
+-- Design      : Radio
+-- Author      : 
+-- Company     : 
+--
+-------------------------------------------------------------------------------
+--
+-- File        : H:\PSC\Projekt\Radio_Transmission\Radio\compile\Encoder.vhd
+-- Generated   : Sun Jan 13 17:40:07 2019
+-- From        : H:\PSC\Projekt\Radio_Transmission\Radio\src\Encoder.bde
+-- By          : Bde2Vhdl ver. 2.6
+--
+-------------------------------------------------------------------------------
+--
+-- Description : 
+--
+-------------------------------------------------------------------------------
+-- Design unit header --
+library IEEE;
+use IEEE.std_logic_1164.all;
+
+entity Encoder is
+  port(
+       CE : in STD_LOGIC;
+       CLK : in STD_LOGIC;
+       CLR : in STD_LOGIC;
+       CircularSending : in STD_LOGIC;
+       Send_Data : in STD_LOGIC;
+       WaitFor : in STD_LOGIC;
+       Data : in STD_LOGIC_VECTOR(7 downto 0);
+       Radio : out STD_LOGIC;
+       Waiting : out STD_LOGIC
+  );
+end Encoder;
+
+architecture Behavioral of Encoder is
+
+---- Component declarations -----
+
+component CRC
+  port (
+       DATA : in STD_LOGIC_VECTOR(15 downto 0);
+       CRC : out STD_LOGIC_VECTOR(7 downto 0)
+  );
+end component;
+component Half_Devider
+  port (
+       CE : in STD_LOGIC;
+       CLK : in STD_LOGIC;
+       CLR : in STD_LOGIC;
+       DataSpeed : out STD_LOGIC;
+       LoadControl : out STD_LOGIC;
+       ManEdge : out STD_LOGIC;
+       ManEncode : out STD_LOGIC
+  );
+end component;
+component Particer
+  port (
+       CE : in STD_LOGIC;
+       CLK : in STD_LOGIC;
+       CRC : in STD_LOGIC_VECTOR(7 downto 0);
+       CircularSending : in STD_LOGIC;
+       DataIn : in STD_LOGIC_VECTOR(7 downto 0);
+       Preambula : in STD_LOGIC_VECTOR(7 downto 0);
+       SEND_DATA : in STD_LOGIC;
+       WaitFor : in STD_LOGIC;
+       DataOut : out STD_LOGIC_VECTOR(7 downto 0);
+       StateN : out STD_LOGIC_VECTOR(1 downto 0);
+       Waiting : out STD_LOGIC
+  );
+end component;
+component PISO
+  port (
+       CE : in STD_LOGIC;
+       CLK : in STD_LOGIC;
+       Load : in STD_LOGIC;
+       ManCode : in STD_LOGIC;
+       ParallelData : in STD_LOGIC_VECTOR(7 downto 0);
+       SerialData : out STD_LOGIC
+  );
+end component;
+component PreambulaAdder
+  port (
+       Data : in STD_LOGIC_VECTOR(7 downto 0);
+       OutData : out STD_LOGIC_VECTOR(15 downto 0);
+       Preambula : out STD_LOGIC_VECTOR(7 downto 0)
+  );
+end component;
+
+---- Signal declarations used on the diagram ----
+
+signal NET1499 : STD_LOGIC;
+signal NET1525 : STD_LOGIC;
+signal NET2630 : STD_LOGIC;
+signal NET2648 : STD_LOGIC;
+signal BUS377 : STD_LOGIC_VECTOR(7 downto 0);
+signal BUS381 : STD_LOGIC_VECTOR(7 downto 0);
+signal BUS389 : STD_LOGIC_VECTOR(7 downto 0);
+signal BUS68 : STD_LOGIC_VECTOR(15 downto 0);
+
+begin
+
+----  Component instantiations  ----
+
+U1 : CRC
+  port map(
+       CRC => BUS377,
+       DATA => BUS68
+  );
+
+U2 : PreambulaAdder
+  port map(
+       Data => Data,
+       OutData => BUS68,
+       Preambula => BUS381
+  );
+
+U3 : Particer
+  port map(
+       CE => NET2648,
+       CLK => NET1525,
+       CRC => BUS377,
+       CircularSending => CircularSending,
+       DataIn => Data,
+       DataOut => BUS389,
+       Preambula => BUS381,
+       SEND_DATA => Send_Data,
+       WaitFor => WaitFor,
+       Waiting => Waiting
+  );
+
+U4 : PISO
+  port map(
+       CE => NET2630,
+       CLK => NET1525,
+       Load => NET2648,
+       ManCode => NET1499,
+       ParallelData => BUS389,
+       SerialData => Radio
+  );
+
+U5 : Half_Devider
+  port map(
+       CE => CE,
+       CLK => NET1525,
+       CLR => CLR,
+       DataSpeed => NET2630,
+       LoadControl => NET2648,
+       ManEncode => NET1499
+  );
+
+
+---- Terminal assignment ----
+
+    -- Inputs terminals
+	NET1525 <= CLK;
+
+
+end Behavioral;
