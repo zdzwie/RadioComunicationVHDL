@@ -15,6 +15,7 @@
 -------------------------------------------------------------------------------
 --
 -- Description : Module of serializer, which additionally encode serial data using Manchester Coding.
+-- This module serializes one-byte data.
 -- Port Description :
 -- Inputs:
 -- ParallelData - Parallel Data, which will be converted to serial.
@@ -27,7 +28,7 @@
 --
 -------------------------------------------------------------------------------
 
--- Libraries attaching. 
+-- Libraries attaching: 
 library IEEE;
 use IEEE.std_logic_1164.all; 
 use IEEE.STD_LOGIC_UNSIGNED.all;
