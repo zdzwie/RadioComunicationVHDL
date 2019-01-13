@@ -36,10 +36,10 @@ use IEEE.STD_LOGIC_UNSIGNED.all;
 entity PISO is
 	port(
 		ParallelData :  in  STD_LOGIC_VECTOR(7 downto 0);
-		CLK :    		in  STD_LOGIC;	   
-		Load :	 		in  STD_LOGIC;
-		CE :		 	in  STD_LOGIC;
-		ManCode : 		in  STD_LOGIC;
+		CLK :           in  STD_LOGIC;	   
+		Load :	 	in  STD_LOGIC;
+		CE :		in  STD_LOGIC;
+		ManCode : 	in  STD_LOGIC;
 		SerialData : 	out STD_LOGIC
 		);
 end PISO;
@@ -48,15 +48,15 @@ end PISO;
 architecture behavioral of PISO is 
 	signal tmp : std_logic_vector(7 downto 0);
 begin	
-	process(CLK)
-	begin
-		if CLK'event and CLK = '1' then
-			if Load = '1' then
-				tmp <= ParallelData;
-			elsif  CE = '1' then
-				tmp <= tmp(6 downto 0)&'0';
-			end if;
-		end if;	 
-	end process;
+process(CLK)
+begin
+	if CLK'event and CLK = '1' then
+		if Load = '1' then
+			tmp <= ParallelData;
+		elsif  CE = '1' then
+			tmp <= tmp(6 downto 0)&'0';
+		end if;
+	end if;	 
+end process;
 	SerialData <= tmp(7) xor ManCode; -- Manchester encoding.
 end behavioral;
