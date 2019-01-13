@@ -1,0 +1,62 @@
+-------------------------------------------------------------------------------
+--
+-- Title       : PISO
+-- Design      : RadioCommunication
+-- Author      : Jakub Brzezowski
+-- Company     : AGH
+--
+-------------------------------------------------------------------------------
+--
+-- File        : H:\PSC\Projekt\Radio_Transmission\Radio\src\PISO.vhd
+-- Generated   : Thu Dec 13 12:40:02 2018
+-- From        : interface description file
+-- By          : Itf2Vhdl ver. 1.22
+--
+-------------------------------------------------------------------------------
+--
+-- Description : Module of serializer, which additionally encode serial data using Manchester Coding.
+-- Port Description :
+-- Inputs:
+-- ParallelData - Parallel Data, which will be converted to serial.
+-- CLK - Clock signal
+-- CE - Clock enable signal, which controls transmission speed.
+-- Load - Signal controls parallel data loading. High level reloading data in PISO register. 
+-- ManCode - Signal, whic is used to encode data. Its freqeuncy must be twice faster than data trasmission.
+-- Outputs:
+-- SerialData - Encoded serial data loaded to PISO module.	
+--
+-------------------------------------------------------------------------------
+
+-- Libraries attaching. 
+library IEEE;
+use IEEE.std_logic_1164.all; 
+use IEEE.STD_LOGIC_UNSIGNED.all;
+
+-- Port definition:
+entity PISO is
+	port(
+		ParallelData :  in  STD_LOGIC_VECTOR(7 downto 0);
+		CLK :    		in  STD_LOGIC;	   
+		Load :	 		in  STD_LOGIC;
+		CE :		 	in  STD_LOGIC;
+		ManCode : 		in  STD_LOGIC;
+		SerialData : 	out STD_LOGIC
+		);
+end PISO;
+
+-- Architecture description:
+architecture behavioral of PISO is 
+	signal tmp : std_logic_vector(7 downto 0);
+begin	
+	process(CLK)
+	begin
+		if CLK'event and CLK = '1' then
+			if Load = '1' then
+				tmp <= ParallelData;
+			elsif  CE = '1' then
+				tmp <= tmp(6 downto 0)&'0';
+			end if;
+		end if;	 
+	end process;
+	SerialData <= tmp(7) xor ManCode; -- Manchester encoding.
+end behavioral;
