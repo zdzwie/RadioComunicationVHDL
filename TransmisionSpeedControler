@@ -40,9 +40,9 @@ entity Half_Devider is
 	port(
 		CLK :         in  STD_LOGIC;
 		CE :          in  STD_LOGIC;
-		CLR : 		  in  STD_LOGIC;
-		DataSpeed  :  out STD_LOGIC;
-		ManEdge : 	  out STD_LOGIC;
+		CLR : 	      in  STD_LOGIC;
+		DataSpeed :   out STD_LOGIC;
+		ManEdge :     out STD_LOGIC;
 		ManEncode :   out STD_LOGIC;
 		LoadControl : out STD_LOGIC
 		);
@@ -60,58 +60,58 @@ architecture behavioral of Half_Devider is
 begin 
 	
 --200kHz signal creating(One clock cycle)	
-	process(CLK,CLR)
-	begin
-		if CLR = '1' then
-			Div_Vector1 <= (others=>'0');
-		elsif CLK'event and CLK = '1' then
-			if CE ='1' then
-				if Div_Vector1 = (SmallDivider -1) then
-					Div_vector1<=(others=>'0');
-				else
-					Div_vector1<=Div_vector1 +1;
-				end if;
+process(CLK,CLR)
+begin
+	if CLR = '1' then
+		Div_Vector1 <= (others=>'0');
+	elsif CLK'event and CLK = '1' then
+		if CE ='1' then
+			if Div_Vector1 = (SmallDivider -1) then
+				Div_vector1<=(others=>'0');
+			else
+				Div_vector1<=Div_vector1 +1;
 			end if;
 		end if;
-	end process;  	
+	end if;
+end process;  	
 	
-	ManEdge<= '1' when Div_vector1 =(SmallDivider -1) and CE = '1' else '0';
+ManEdge<= '1' when Div_vector1 =(SmallDivider -1) and CE = '1' else '0';
 		
 --100kHz signal creating.(50% fill and one clock cycle)	
-	process(CLK,CLR)
-	begin
-		if CLR = '1' then
-			Div_Vector2 <= (others=>'0');
-		elsif CLK'event and CLK = '1' then
-			if CE ='1' then
-				if Div_Vector2 = (MediumDivider -1) then
-					Div_vector2<=(others=>'0');
-				else
-					Div_vector2<=Div_vector2 +1;
-				end if;
+process(CLK,CLR)
+begin
+	if CLR = '1' then
+		Div_Vector2 <= (others=>'0');
+	elsif CLK'event and CLK = '1' then
+		if CE ='1' then
+			if Div_Vector2 = (MediumDivider -1) then
+				Div_vector2<=(others=>'0');
+			else
+				Div_vector2<=Div_vector2 +1;
 			end if;
 		end if;
-	end process;
+	end if;
+end process;
 	
-	ManEncode<= '1' when Div_vector2 >(MediumDivider / 2) and CE = '1' else '0';
-	DataSpeed<= '1' when Div_vector2 = (MediumDivider - 1) and CE = '1' else '0';
+ManEncode<= '1' when Div_vector2 >(MediumDivider / 2) and CE = '1' else '0';
+DataSpeed<= '1' when Div_vector2 = (MediumDivider - 1) and CE = '1' else '0';
 		
 --12.5kHz signal creating(One clock cycle)	
-	process(CLK,CLR)
-	begin
-		if CLR = '1' then
-			Div_Vector3 <= (others=>'0');
-		elsif CLK'event and CLK = '1' then
-			if CE ='1' then
-				if Div_Vector3 = (BigDivider -1) then
-					Div_vector3<=(others=>'0');
-				else
-					Div_vector3<=Div_vector3 +1;
-				end if;
+process(CLK,CLR)
+begin
+	if CLR = '1' then
+		Div_Vector3 <= (others=>'0');
+	elsif CLK'event and CLK = '1' then
+		if CE ='1' then
+			if Div_Vector3 = (BigDivider -1) then
+				Div_vector3<=(others=>'0');
+			else
+				Div_vector3<=Div_vector3 +1;
 			end if;
 		end if;
-	end process;	
+	end if;
+end process;	
 	
-	LoadControl <= '1' when Div_vector3 =(BigDivider -1) and CE = '1' else '0';
+LoadControl <= '1' when Div_vector3 =(BigDivider -1) and CE = '1' else '0';
 	
 end behavioral;
