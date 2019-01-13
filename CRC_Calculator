@@ -1,0 +1,64 @@
+-------------------------------------------------------------------------------
+--
+-- Title       : CRC
+-- Design      : RadioCommunication
+-- Author      : Jakub Brzezowski
+-- Company     : AGH
+--
+-------------------------------------------------------------------------------
+--
+-- File        : H:\PSC\Projekt\Radio_Transmission\Radio\src\CRC.vhd
+-- Generated   : Thu Dec 13 13:22:19 2018
+-- From        : interface description file
+-- By          : Itf2Vhdl ver. 1.22
+--
+-------------------------------------------------------------------------------
+--
+-- Description : Module of CRC calculator. This module use only combinative logic and doesn't use pipeling. 
+-- Notes:
+-- This calculator services only two-bytes data. 
+-- This calculator uses CRC-Poly: 10100111. 
+-- Port Description :
+-- Inputs:
+-- Data - Two-Bytes data uses to CRC calculating.
+-- Outputs:
+-- CRC - Calculated CRC.
+--
+-------------------------------------------------------------------------------
+
+
+-- Libraries attaching: 
+library IEEE;
+use IEEE.std_logic_1164.all;	
+
+-- Port definition:
+entity CRC is
+	port(
+		DATA : 	in  STD_LOGIC_VECTOR(15 downto 0);
+		CRC : 	out STD_LOGIC_VECTOR(7 downto 0)
+		);
+end CRC;
+
+-- Architecture description:
+architecture behavioral of CRC is 
+	constant CRC_Poly: STD_LOGIC_VECTOR(7 downto 0) := "10100111";
+	signal d:      std_logic_vector(15 downto 0);
+	signal c:      std_logic_vector(7 downto 0);
+	signal newcrc: std_logic_vector(7 downto 0);
+begin 
+	
+	d <= DATA;
+	c <= CRC_Poly;
+	
+	newcrc(0) <= d(14) xor d(12) xor d(8) xor d(7) xor d(6) xor d(0) xor c(0) xor c(4) xor c(6);
+	newcrc(1) <= d(15) xor d(14) xor d(13) xor d(12) xor d(9) xor d(6) xor d(1) xor d(0) xor c(1) xor c(4) xor c(5) xor c(6) xor c(7);
+	newcrc(2) <= d(15) xor d(13) xor d(12) xor d(10) xor d(8) xor d(6) xor d(2) xor d(1) xor d(0) xor c(0) xor c(2) xor c(4) xor c(5) xor c(7);
+	newcrc(3) <= d(14) xor d(13) xor d(11) xor d(9) xor d(7) xor d(3) xor d(2) xor d(1) xor c(1) xor c(3) xor c(5) xor c(6);
+	newcrc(4) <= d(15) xor d(14) xor d(12) xor d(10) xor d(8) xor d(4) xor d(3) xor d(2) xor c(0) xor c(2) xor c(4) xor c(6) xor c(7);
+	newcrc(5) <= d(15) xor d(13) xor d(11) xor d(9) xor d(5) xor d(4) xor d(3) xor c(1) xor c(3) xor c(5) xor c(7);
+	newcrc(6) <= d(14) xor d(12) xor d(10) xor d(6) xor d(5) xor d(4) xor c(2) xor c(4) xor c(6);
+	newcrc(7) <= d(15) xor d(13) xor d(11) xor d(7) xor d(6) xor d(5) xor c(3) xor c(5) xor c(7);	
+	
+	CRC<=newcrc;
+	
+end behavioral;
