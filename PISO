@@ -15,6 +15,7 @@
 -------------------------------------------------------------------------------
 --
 -- Description : Module of serializer, which additionally encode serial data using Manchester Coding.
+-- Notes:
 -- This module serializes one-byte data.
 -- Port Description :
 -- Inputs:
