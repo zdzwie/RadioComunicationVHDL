@@ -1,0 +1,129 @@
+-------------------------------------------------------------------------------
+--
+-- Title       : No Title
+-- Design      : Radio
+-- Author      : Użytkownik systemu Windows
+-- Company     : AGH
+--
+-------------------------------------------------------------------------------
+--
+-- File        : H:\PSC\Projekt\Radio_Transmission\Radio\compile\Particer.vhd
+-- Generated   : Sun Jan 13 13:41:02 2019
+-- From        : H:\PSC\Projekt\Radio_Transmission\Radio\src\Particer.asf
+-- By          : FSM2VHDL ver. 5.0.7.2
+--
+-------------------------------------------------------------------------------
+--
+-- Description : 
+--
+-------------------------------------------------------------------------------
+
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.std_logic_arith.all;
+use IEEE.std_logic_unsigned.all;
+
+entity Particer is 
+	port (
+		CE: in STD_LOGIC;
+		CircularSending: in STD_LOGIC;
+		CLK: in STD_LOGIC;
+		CRC: in STD_LOGIC_VECTOR (7 downto 0);
+		DataIn: in STD_LOGIC_VECTOR (7 downto 0);
+		Preambula: in STD_LOGIC_VECTOR (7 downto 0);
+		SEND_DATA: in STD_LOGIC;
+		WaitFor: in STD_LOGIC;
+		DataOut: out STD_LOGIC_VECTOR (7 downto 0);
+		StateN: out STD_LOGIC_VECTOR (1 downto 0);
+		Waiting: out STD_LOGIC);
+end Particer;
+
+architecture Automat of Particer is
+
+-- USER DEFINED ENCODED state machine: Action
+attribute ENUM_ENCODING: string;
+type Action_type is (
+    WaitForSend, Preambula_Send, DataSend, CRC_Send
+);
+attribute ENUM_ENCODING of Action_type: type is
+	"11 " &		-- WaitForSend
+	"00 " &		-- Preambula_Send
+	"01 " &		-- DataSend
+	"10" ;		-- CRC_Send
+
+signal Action: Action_type;
+
+begin
+
+-- FSM coverage pragmas
+-- Aldec enum Machine_Action CURRENT=Action
+-- Aldec enum Machine_Action INITIAL_STATE=Preambula_Send
+-- Aldec enum Machine_Action STATES=CRC_Send,DataSend,WaitForSend
+-- Aldec enum Machine_Action TRANS=CRC_Send->Preambula_Send,CRC_Send->WaitForSend,DataSend->CRC_Send,DataSend->WaitForSend,Preambula_Send->DataSend,Preambula_Send->WaitForSend
+
+
+----------------------------------------------------------------------
+-- Machine: Action
+----------------------------------------------------------------------
+Action_machine: process (CLK)
+begin
+	if CLK'event and CLK = '1' then
+		if SEND_DATA='1' then
+			Action <= Preambula_Send;
+			-- Set default values for outputs, signals and variables
+			-- ...
+		else
+			if CE = '1' then
+				-- Set default values for outputs, signals and variables
+				-- ...
+				case Action is
+					when Preambula_Send =>
+						if WaitFor='1' then
+							Action <= WaitForSend;
+						else
+							Action <= DataSend;
+						end if;
+					when DataSend =>
+						if WaitFor='1' then
+							Action <= WaitForSend;
+						else
+							Action <= CRC_Send;
+						end if;
+					when CRC_Send =>
+						if CircularSending='1' then
+							Action <= Preambula_Send;
+						elsif CircularSending='0' then
+							Action <= WaitForSend;
+						end if;
+--vhdl_cover_off
+					when others =>
+						null;
+--vhdl_cover_on
+				end case;
+			end if;
+		end if;
+	end if;
+end process;
+
+-- signal assignment statements for combinatorial outputs
+DataOut_assignment:
+DataOut <= Preambula when (Action = Preambula_Send) else
+           DataIn when (Action = DataSend) else
+           CRC when (Action = CRC_Send) else
+           Preambula;
+
+Waiting_assignment:
+Waiting <= '1' when (Action = WaitForSend) else
+           '0' when (Action = Preambula_Send) else
+           '0' when (Action = DataSend) else
+           '0' when (Action = CRC_Send) else
+           '0';
+
+StateN_assignment:
+StateN <= "11" when (Action = WaitForSend) else
+          "00" when (Action = Preambula_Send) else
+          "01" when (Action = DataSend) else
+          "10" when (Action = CRC_Send) else
+          "00";
+
+end Automat;
